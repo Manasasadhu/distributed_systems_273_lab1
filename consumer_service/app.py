@@ -11,7 +11,12 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 SERVICE_A = os.getenv("SERVICE_A_URL", "http://127.0.0.1:8080")
-TIMEOUT = float(os.getenv("SERVICE_A_TIMEOUT", "1.0"))
+TIMEOUT = (float(os.getenv("SERVICE_A_CONNECT_TIMEOUT", "0.5")), float(os.getenv("SERVICE_A_READ_TIMEOUT", "1.0")))
+# Separate connect/read timeouts (seconds)
+CONNECT_TIMEOUT = float(os.getenv("SERVICE_A_CONNECT_TIMEOUT", "0.5"))
+READ_TIMEOUT = float(os.getenv("SERVICE_A_READ_TIMEOUT", "1.0"))
+# Retry policy
+MAX_RETRIES = int(os.getenv("SERVICE_A_MAX_RETRIES", "2"))
 
 def log_structured(event_type, service, endpoint, status, latency_ms, request_id, error=None, error_type=None, **extra):
     """Log in JSON format for easy parsing."""
@@ -43,13 +48,16 @@ def call_echo():
     start = time.time()
     request_id = str(uuid.uuid4())[:8]
     msg = request.args.get("msg", "")
-    try:
-        r = requests.get(f"{SERVICE_A}/echo", params={"msg": msg}, timeout=TIMEOUT)
-        r.raise_for_status()
-        data = r.json()
-        latency_ms = int((time.time()-start)*1000)
-        log_structured("request_complete", "B", "/call-echo", "ok", latency_ms, request_id, msg=msg)
-        return jsonify(service_b="ok", service_a=data)
+    # Simple retry loop with exponential backoff for transient errors
+    for attempt in range(0, MAX_RETRIES + 1):
+        attempt_start = time.time()
+        try:
+            r = requests.get(f"{SERVICE_A}/echo", params={"msg": msg}, timeout=TIMEOUT)
+            r.raise_for_status()
+            data = r.json()
+            latency_ms = int((time.time()-start)*1000)
+            log_structured("request_complete", "B", "/call-echo", "ok", latency_ms, request_id, msg=msg)
+            return jsonify(service_b="ok", service_a=data)
     except requests.exceptions.Timeout as e:
         latency_ms = int((time.time()-start)*1000)
         error_msg = f"Service A timeout after {TIMEOUT}s"
