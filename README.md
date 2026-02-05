@@ -43,9 +43,9 @@ Clone the repository and understand the requirements for each service. And follo
 
 <img width="1060" height="585" alt="image" src="https://github.com/user-attachments/assets/c36bc957-84d7-43b6-929a-27b786da52e7" />
 
-**Failure Scenario** - Calling service_a(8080) from service_b(8081) when service_a is down
+**Failure Scenario** - Calling service_a(8080) from service_b(8081) when service_a is down (with updated logging)
 
-<img width="1036" height="601" alt="image" src="https://github.com/user-attachments/assets/4ecf8ee7-b401-4d6f-9f6c-7e150c0d0539" />
+<img width="862" height="380" alt="image" src="https://github.com/user-attachments/assets/a05e5ed1-25a8-4cfd-8633-f06c25534774" />
 
 ## Why is this distributed??
 
