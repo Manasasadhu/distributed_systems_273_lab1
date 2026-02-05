@@ -20,7 +20,5 @@ Calling 8080(service_a) from 8081 echo(service_b)
 <img width="1036" height="601" alt="image" src="https://github.com/user-attachments/assets/4ecf8ee7-b401-4d6f-9f6c-7e150c0d0539" />
 
 Hitting echo call when 8080 is down
-![Uploading image.png…]()
-
 
 Why is this distributed??
