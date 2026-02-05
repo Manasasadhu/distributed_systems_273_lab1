@@ -3,7 +3,9 @@ A basic real time distributed system with two services.
 
 ## How to run locally:
 
-## Testing the services:
+Clone the repository and understand the requirements for each service. And follow the steps below to run the services locally.
+
+### Testing the services:
 
 1. Start service A (provider_service)
    ```bash
@@ -44,3 +46,5 @@ Failure Scenario - Calling service_a(8080) from service_b(8081) when service_a i
 <img width="1036" height="601" alt="image" src="https://github.com/user-attachments/assets/4ecf8ee7-b401-4d6f-9f6c-7e150c0d0539" />
 
 ## Why is this distributed??
+
+The system is distributed because it consists of two independent services (service A/provider_service and service B/consumer_service) that communicate over a network using HTTP requests. Each service runs independently as if they are running on two different machines/containers, even though on a same machine and they interact with each other's requests. This independence and network communication are key characteristics of distributed systems.
