@@ -22,17 +22,20 @@ Clone the repository and understand the requirements for each service. And follo
    python app.py
    ```
 3. Test service A health check
+   
 8080 Health Check 
 
 <img width="644" height="165" alt="image" src="https://github.com/user-attachments/assets/785296fe-3dd8-47d1-8c58-9433d36e16b7" />
 <img width="1041" height="489" alt="image" src="https://github.com/user-attachments/assets/c166dcdf-4bfd-4c4a-b7f4-a94f306c5724" />
 
 4. Test service A echo endpoint
+
 8080 Echo call 
 
 <img width="1060" height="493" alt="image" src="https://github.com/user-attachments/assets/b3c1af9a-282a-4de2-8d5c-e95318b98b37" />
 
 5. Test service B health check
+
 8081 Health Check
 
 <img width="1067" height="530" alt="image" src="https://github.com/user-attachments/assets/3d52e066-88b5-41a8-9785-be8d2febb0ba" />
