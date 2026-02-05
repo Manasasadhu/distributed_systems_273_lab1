@@ -1,5 +1,8 @@
 Distributed Systems Lab 1 - Week 1
 
+This repository demonstates a basic distributed system with two independent services with one talking to the other. 
+Below is the detailed information to run and test locally.
+
 ## How to run locally:
 
 Clone the repository and understand the requirements for each service. And follow the steps below to run the services locally.
