@@ -42,7 +42,7 @@ Clone the repository and understand the requirements for each service. And follo
 
 6. Test service B calling service A
 
-**Success Scenario **- Calling service_a(8080) from service_b(8081) when both services are up
+**Success Scenario** - Calling service_a(8080) from service_b(8081) when both services are up
 
 <img width="1060" height="585" alt="image" src="https://github.com/user-attachments/assets/c36bc957-84d7-43b6-929a-27b786da52e7" />
 
