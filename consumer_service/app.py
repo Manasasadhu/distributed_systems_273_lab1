@@ -56,23 +56,47 @@ def call_echo():
             r.raise_for_status()
             data = r.json()
             latency_ms = int((time.time()-start)*1000)
-            log_structured("request_complete", "B", "/call-echo", "ok", latency_ms, request_id, msg=msg)
+            log_structured("request_complete", "B", "/call-echo", "ok", latency_ms, request_id, msg=msg, attempt=attempt)
             return jsonify(service_b="ok", service_a=data)
-    except requests.exceptions.Timeout as e:
-        latency_ms = int((time.time()-start)*1000)
-        error_msg = f"Service A timeout after {TIMEOUT}s"
-        log_structured("request_failed", "B", "/call-echo", "error", latency_ms, request_id, error=error_msg, error_type="timeout", msg=msg)
-        return jsonify(service_b="error", service_a="unavailable", error=error_msg), 504
-    except requests.exceptions.ConnectionError as e:
-        latency_ms = int((time.time()-start)*1000)
-        error_msg = "Service A connection refused"
-        log_structured("request_failed", "B", "/call-echo", "error", latency_ms, request_id, error=error_msg, error_type="connection_error", msg=msg)
-        return jsonify(service_b="error", service_a="unavailable", error=error_msg), 503
-    except Exception as e:
-        latency_ms = int((time.time()-start)*1000)
-        error_msg = str(e)
-        log_structured("request_failed", "B", "/call-echo", "error", latency_ms, request_id, error=error_msg, error_type="unknown", msg=msg)
-        return jsonify(service_b="error", service_a="unavailable", error=error_msg), 503
+        except requests.exceptions.Timeout:
+            latency_ms = int((time.time()-attempt_start)*1000)
+            if attempt < MAX_RETRIES:
+                backoff = 0.1 * (2 ** attempt)
+                log_structured("retry", "B", "/call-echo", "retry", latency_ms, request_id, error="timeout", error_type="timeout", attempt=attempt, backoff_ms=int(backoff*1000), msg=msg)
+                time.sleep(backoff)
+                continue
+            error_msg = f"Service A timeout after {READ_TIMEOUT}s"
+            latency_ms = int((time.time()-start)*1000)
+            log_structured("request_failed", "B", "/call-echo", "error", latency_ms, request_id, error=error_msg, error_type="timeout", msg=msg)
+            return jsonify(service_b="error", service_a="unavailable", error=error_msg), 504
+        except requests.exceptions.ConnectionError:
+            latency_ms = int((time.time()-attempt_start)*1000)
+            if attempt < MAX_RETRIES:
+                backoff = 0.1 * (2 ** attempt)
+                log_structured("retry", "B", "/call-echo", "retry", latency_ms, request_id, error="connection_error", error_type="connection_error", attempt=attempt, backoff_ms=int(backoff*1000), msg=msg)
+                time.sleep(backoff)
+                continue
+            error_msg = "Service A connection refused"
+            latency_ms = int((time.time()-start)*1000)
+            log_structured("request_failed", "B", "/call-echo", "error", latency_ms, request_id, error=error_msg, error_type="connection_error", msg=msg)
+            return jsonify(service_b="error", service_a="unavailable", error=error_msg), 503
+        except requests.exceptions.HTTPError as e:
+            status_code = e.response.status_code if e.response is not None else None
+            latency_ms = int((time.time()-attempt_start)*1000)
+            if status_code is not None and status_code >= 500 and attempt < MAX_RETRIES:
+                backoff = 0.1 * (2 ** attempt)
+                log_structured("retry", "B", "/call-echo", "retry", latency_ms, request_id, error=f"upstream_{status_code}", error_type="upstream_5xx", attempt=attempt, backoff_ms=int(backoff*1000), msg=msg)
+                time.sleep(backoff)
+                continue
+            error_msg = f"Upstream returned {status_code}" if status_code is not None else str(e)
+            latency_ms = int((time.time()-start)*1000)
+            log_structured("request_failed", "B", "/call-echo", "error", latency_ms, request_id, error=error_msg, error_type="upstream", msg=msg)
+            return jsonify(service_b="error", service_a="unavailable", error=error_msg), 502
+        except Exception as e:
+            latency_ms = int((time.time()-start)*1000)
+            error_msg = str(e)
+            log_structured("request_failed", "B", "/call-echo", "error", latency_ms, request_id, error=error_msg, error_type="unknown", msg=msg)
+            return jsonify(service_b="error", service_a="unavailable", error=error_msg), 503
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8081)

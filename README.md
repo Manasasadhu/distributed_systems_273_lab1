@@ -50,6 +50,19 @@ Clone the repository and understand the requirements for each service. And follo
 
 <img width="862" height="380" alt="image" src="https://github.com/user-attachments/assets/a05e5ed1-25a8-4cfd-8633-f06c25534774" />
 
+## Enhancements
+
+### Structured Logging & Request Tracing
+Both services now output structured JSON logs with the following fields: `timestamp`, `event`, `service` (A or B), `endpoint`, `status` (ok/error), `latency_ms`, and a unique `request_id` for tracing requests across services. This enables easy integration with log aggregation systems and helps debug issues in distributed environments.
+
+###  Error Handling
+Service B (consumer) now implements intelligent error handling and retry logic:
+- Configurable timeouts for connecting to and reading from Service A.
+- Retries with exponential backoff on failures (up to a configurable max retries).
+- Logs detailed error information including the type of error (timeout, connection error, etc.) and the number of retry attempts.
+
+
 ## Why is this distributed??
 
 The system is distributed because it consists of two independent services (service A/provider_service and service B/consumer_service) that communicate over a network using HTTP requests. Each service runs independently as if they are running on two different machines/containers, even though on a same machine and they interact with each other's requests. This independence and network communication are key characteristics of distributed systems.
+
