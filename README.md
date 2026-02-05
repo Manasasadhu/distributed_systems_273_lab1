@@ -1,4 +1,4 @@
-Distributed Systems Lab 1 - Week 1
+#Distributed Systems Lab 1 - Week 1
 
 This repository demonstrates a basic distributed system with two independent services with one talking to the other. 
 Below is the detailed information to run and test locally.
